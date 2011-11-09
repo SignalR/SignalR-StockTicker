@@ -1,0 +1,7 @@
+C:\Source\GitHub\DamianEdwards\SignalR-StockTicker\SignalR.StockTicker\SignalR.StockTicker\obj\Debug\SignalR.StockTicker.csprojResolveAssemblyReference.cache
+C:\Source\GitHub\DamianEdwards\SignalR-StockTicker\SignalR.StockTicker\SignalR.StockTicker\bin\SignalR.StockTicker.dll
+C:\Source\GitHub\DamianEdwards\SignalR-StockTicker\SignalR.StockTicker\SignalR.StockTicker\bin\SignalR.StockTicker.pdb
+C:\Source\GitHub\DamianEdwards\SignalR-StockTicker\SignalR.StockTicker\SignalR.StockTicker\bin\Microsoft.Web.Infrastructure.dll
+C:\Source\GitHub\DamianEdwards\SignalR-StockTicker\SignalR.StockTicker\SignalR.StockTicker\bin\SignalR.dll
+C:\Source\GitHub\DamianEdwards\SignalR-StockTicker\SignalR.StockTicker\SignalR.StockTicker\obj\Debug\SignalR.StockTicker.dll
+C:\Source\GitHub\DamianEdwards\SignalR-StockTicker\SignalR.StockTicker\SignalR.StockTicker\obj\Debug\SignalR.StockTicker.pdb
