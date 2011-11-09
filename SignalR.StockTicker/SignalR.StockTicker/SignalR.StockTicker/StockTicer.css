@@ -2,3 +2,12 @@
     font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
     font-size: 16px;
 }
+
+#stockTable table {
+    border-collapse: collapse;
+}
+
+    #stockTable table th,
+    #stockTable table td {
+        padding: 2px 6px;
+    }
