@@ -37,11 +37,19 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             }
         }
 
-        public decimal PercentChange
+        public decimal Change
         {
             get
             {
-                return Math.Round((Price - DayOpen) / Price, 4);
+                return Price - DayOpen;
+            }
+        }
+
+        public double PercentChange
+        {
+            get
+            {
+                return (double)Math.Round(Change / Price, 4);
             }
         }
     }

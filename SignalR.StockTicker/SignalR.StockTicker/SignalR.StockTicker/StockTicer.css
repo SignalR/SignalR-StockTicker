@@ -38,11 +38,21 @@
         margin-right: 8px;   
     }
 
-    /*<li data-symbol="{Symbol}"><span class="symbol">{Symbol}</span><span class="price">{Price}</span><span class="change">{PercentChange}</span></li>*/
+    /*<li data-symbol="{Symbol}"><span class="symbol">{Symbol}</span> <span class="price">{Price}</span> <span class="change"><span class="dir {DirectionClass}">{Direction}</span> {Change} ({PercentChange})</span></li>*/
     #stockTicker .symbol {
         font-weight: bold;
     }
 
     #stockTicker .change {
         font-style: italic;
+    }
+
+    #stockTable .up,
+    #stockTicker .up {
+        color: #54e815
+    }
+
+    #stockTable .down,
+    #stockTicker .down {
+        color: #f00;
     }

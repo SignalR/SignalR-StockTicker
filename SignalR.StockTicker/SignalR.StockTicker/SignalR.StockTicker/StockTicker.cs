@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Web;
 using SignalR.Hubs;
 
 namespace SignalR.StockTicker.SignalR.StockTicker
@@ -10,18 +9,19 @@ namespace SignalR.StockTicker.SignalR.StockTicker
     public class StockTicker
     {
         private readonly static Lazy<StockTicker> _instance = new Lazy<StockTicker>(() => new StockTicker());
-        private readonly Dictionary<string, Stock> _stocks = new Dictionary<string, Stock>();
+        private readonly static object _marketStateLock = new object();
+        private readonly ConcurrentDictionary<string, Stock> _stocks = new ConcurrentDictionary<string, Stock>();
         private readonly double _rangePercent = .008;
-        private readonly int _updateInterval = 500; //ms
+        private readonly int _updateInterval = 250; //ms
         private Timer _timer;
         private readonly object _updateStockPricesLock = new object();
         private bool _updatingStockPrices = false;
         private readonly Random _updateOrNotRandom = new Random();
+        private MarketState _marketState = MarketState.Closed;
 
         private StockTicker()
         {
             LoadDefaultStocks();
-            OpenMarket();
         }
 
         public static StockTicker Instance
@@ -32,9 +32,66 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             }
         }
 
+        public MarketState MarketState
+        {
+            get { return _marketState; }
+            private set { _marketState = value; }
+        }
+
         public IEnumerable<Stock> GetAllStocks()
         {
             return _stocks.Values;
+        }
+
+        public void OpenMarket()
+        {
+            if (MarketState != MarketState.Open || MarketState != MarketState.Opening)
+            {
+                lock (_marketStateLock)
+                {
+                    if (MarketState != MarketState.Open || MarketState != MarketState.Opening)
+                    {
+                        MarketState = MarketState.Opening;
+                        _timer = new Timer(UpdateStockPrices, null, _updateInterval, _updateInterval);
+                        MarketState = MarketState.Open;
+                        Hub.GetClients<StockTickerHub>().marketOpened();
+                    }
+                }
+            }
+        }
+
+        public void CloseMarket()
+        {
+            if (MarketState == MarketState.Open || MarketState == MarketState.Opening)
+            {
+                lock (_marketStateLock)
+                {
+                    if (MarketState == MarketState.Open || MarketState == MarketState.Opening)
+                    {
+                        MarketState = MarketState.Closing;
+                        if (_timer != null)
+                        {
+                            _timer.Dispose();
+                        }
+                        MarketState = MarketState.Closed;
+                        Hub.GetClients<StockTickerHub>().marketClosed();
+                    }
+                }
+            }
+        }
+
+        public void Reset()
+        {
+            lock (_marketStateLock)
+            {
+                if (MarketState != MarketState.Closed)
+                {
+                    throw new InvalidOperationException("Market must be closed before it can be reset.");
+                }
+                _stocks.Clear();
+                LoadDefaultStocks();
+                Hub.GetClients<StockTickerHub>().marketReset();
+            }
         }
 
         private void LoadDefaultStocks()
@@ -44,20 +101,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
                 new Stock { Symbol = "MSFT", Price = 26.31m, DayOpen = 26.31m },
                 new Stock { Symbol = "APPL", Price = 404.18m, DayOpen = 404.18m },
                 new Stock { Symbol = "GOOG", Price = 596.30m, DayOpen = 596.30m }
-            }.ForEach(stock => _stocks.Add(stock.Symbol, stock));
-        }
-
-        private void OpenMarket()
-        {
-            _timer = new Timer(UpdateStockPrices, null, _updateInterval, _updateInterval);
-        }
-
-        private void CloseMarket()
-        {
-            if (_timer != null)
-            {
-                _timer.Dispose();
-            }
+            }.ForEach(stock => _stocks.TryAdd(stock.Symbol, stock));
         }
 
         private void UpdateStockPrices(object state)
@@ -109,8 +153,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 
         private void BroadcastStockPrice(Stock stock)
         {
-            var clients = Hub.GetClients<StockTickerHub>();
-            clients.updateStockPrice(stock);
+            Hub.GetClients<StockTickerHub>().updateStockPrice(stock);
         }
 
         ~StockTicker()
@@ -120,5 +163,13 @@ namespace SignalR.StockTicker.SignalR.StockTicker
                 _timer.Dispose();
             }
         }
+    }
+
+    public enum MarketState
+    {
+        Open,
+        Opening,
+        Closing,
+        Closed
     }
 }
