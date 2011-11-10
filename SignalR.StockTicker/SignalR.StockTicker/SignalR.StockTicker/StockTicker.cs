@@ -9,7 +9,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 {
     public class StockTicker
     {
-        public readonly static Lazy<StockTicker> _instance = new Lazy<StockTicker>(() => new StockTicker());
+        private readonly static Lazy<StockTicker> _instance = new Lazy<StockTicker>(() => new StockTicker());
         private readonly Dictionary<string, Stock> _stocks = new Dictionary<string, Stock>();
         private readonly double _rangePercent = .008;
         private readonly int _updateInterval = 500; //ms
