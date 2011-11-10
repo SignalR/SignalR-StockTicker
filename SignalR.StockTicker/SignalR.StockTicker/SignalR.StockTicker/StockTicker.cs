@@ -9,11 +9,10 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 {
     public class StockTicker
     {
-        private readonly static object _instanceLock = new object();
-        private static StockTicker _instance;
+        public readonly static Lazy<StockTicker> _instance = new Lazy<StockTicker>(() => new StockTicker());
         private readonly Dictionary<string, Stock> _stocks = new Dictionary<string, Stock>();
-        private readonly double _rangePercent = .01;
-        private readonly int _updateInterval = 5000;
+        private readonly double _rangePercent = .008;
+        private readonly int _updateInterval = 500; //ms
         private Timer _timer;
         private readonly object _updateStockPricesLock = new object();
         private bool _updatingStockPrices = false;
@@ -29,17 +28,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         {
             get
             {
-                if (_instance == null)
-                {
-                    lock (_instanceLock)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new StockTicker();
-                        }
-                    }
-                }
-                return _instance;
+                return _instance.Value;
             }
         }
 
@@ -52,9 +41,9 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         {
             new List<Stock>
             {
-                new Stock { Symbol = "MSFT", Price = 26.31m, DayOpen = 26.34m, DayHigh = 26.84m, DayLow = 26.28m },
-                new Stock { Symbol = "APPL", Price = 404.18m, DayOpen = 400.06m, DayHigh = 404.18m, DayLow = 395.62m },
-                new Stock { Symbol = "GOOG", Price = 596.30m, DayOpen = 598.40m, DayHigh = 608.97m, DayLow = 593.87m }
+                new Stock { Symbol = "MSFT", Price = 26.31m, DayOpen = 26.31m },
+                new Stock { Symbol = "APPL", Price = 404.18m, DayOpen = 404.18m },
+                new Stock { Symbol = "GOOG", Price = 596.30m, DayOpen = 596.30m }
             }.ForEach(stock => _stocks.Add(stock.Symbol, stock));
         }
 
@@ -102,7 +91,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         {
             // Randomly choose whether to udpate this stock or not
             var r = _updateOrNotRandom.NextDouble();
-            if (r > .25)
+            if (r > .1)
             {
                 return false;
             }
@@ -110,8 +99,8 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             // Update the stock price by a random factor of the range percent
             var random = new Random((int)Math.Floor(stock.Price));
             var percentChange = random.NextDouble() * _rangePercent;
-            var pos = random.NextDouble() > .5;
-            var change = Math.Round(stock.Price * (decimal)percentChange, 3);
+            var pos = random.NextDouble() > .4;
+            var change = Math.Round(stock.Price * (decimal)percentChange, 2);
             change = pos ? change : -change;
 
             stock.Price += change;
@@ -122,6 +111,14 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         {
             var clients = Hub.GetClients<StockTickerHub>();
             clients.updateStockPrice(stock);
+        }
+
+        ~StockTicker()
+        {
+            if (_timer != null)
+            {
+                _timer.Dispose();
+            }
         }
     }
 }

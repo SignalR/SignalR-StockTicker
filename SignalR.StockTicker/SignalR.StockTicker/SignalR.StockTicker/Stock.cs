@@ -26,7 +26,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             set
             {
                 _price = value;
-                if (_price < DayLow)
+                if (_price < DayLow || DayLow == 0)
                 {
                     DayLow = Price;
                 }
