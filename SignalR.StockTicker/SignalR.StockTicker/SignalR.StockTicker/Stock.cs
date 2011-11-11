@@ -11,11 +11,11 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 
         public string Symbol { get; set; }
         
-        public decimal DayOpen { get; set; }
+        public decimal DayOpen { get; private set; }
         
-        public decimal DayLow { get; set; }
+        public decimal DayLow { get; private set; }
         
-        public decimal DayHigh { get; set; }
+        public decimal DayHigh { get; private set; }
 
         public decimal Price
         {
@@ -26,9 +26,13 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             set
             {
                 _price = value;
+                if (DayOpen == 0)
+                {
+                    DayOpen = _price;
+                }
                 if (_price < DayLow || DayLow == 0)
                 {
-                    DayLow = Price;
+                    DayLow = _price;
                 }
                 if (_price > DayHigh)
                 {

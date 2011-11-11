@@ -98,9 +98,9 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         {
             new List<Stock>
             {
-                new Stock { Symbol = "MSFT", Price = 26.31m, DayOpen = 26.31m },
-                new Stock { Symbol = "APPL", Price = 404.18m, DayOpen = 404.18m },
-                new Stock { Symbol = "GOOG", Price = 596.30m, DayOpen = 596.30m }
+                new Stock { Symbol = "MSFT", Price = 26.31m },
+                new Stock { Symbol = "APPL", Price = 404.18m },
+                new Stock { Symbol = "GOOG", Price = 596.30m }
             }.ForEach(stock => _stocks.TryAdd(stock.Symbol, stock));
         }
 
@@ -143,7 +143,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             // Update the stock price by a random factor of the range percent
             var random = new Random((int)Math.Floor(stock.Price));
             var percentChange = random.NextDouble() * _rangePercent;
-            var pos = random.NextDouble() > .4;
+            var pos = random.NextDouble() > .51;
             var change = Math.Round(stock.Price * (decimal)percentChange, 2);
             change = pos ? change : -change;
 

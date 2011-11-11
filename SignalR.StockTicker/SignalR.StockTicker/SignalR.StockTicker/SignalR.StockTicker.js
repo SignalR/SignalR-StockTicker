@@ -24,7 +24,7 @@ $(function () {
         down = '▼',
         $stockTable = $('#stockTable'),
         $stockTableBody = $stockTable.find('tbody'),
-        rowTemplate = '<tr data-symbol="{Symbol}"><td>{Symbol}</td><td>{Price}</td><td>{DayOpen}</td><td>{DayHigh}</td><td>{DayLow}</td><td><span class="dir {DirectionClass}">{Direction}</span> {Change}</td><td>{PercentChange}</td></tr>',
+        rowTemplate = '<tr data-symbol="{Symbol}"><td>{Symbol}</td><td>{Price}</td><td>{DayOpen}</td><td>{DayHigh}</td><td>{DayLow}</td><td class="change" data-change="{Change}"><span class="dir {DirectionClass}">{Direction}</span> {Change}</td><td>{PercentChange}</td></tr>',
         $stockTicker = $('#stockTicker'),
         $stockTickerUl = $stockTicker.find('ul'),
         liTemplate = '<li data-symbol="{Symbol}"><span class="symbol">{Symbol}</span> <span class="price">{Price}</span> <span class="change"><span class="dir {DirectionClass}">{Direction}</span> {Change} ({PercentChange})</span></li>';
@@ -33,22 +33,30 @@ $(function () {
         return $.extend(stock, {
             Price: stock.Price.toFixed(2),
             PercentChange: (stock.PercentChange * 100).toFixed(2) + '%',
-            Direction: stock.Change === 0 ? '-' : stock.Change >= 0 ? up : down,
-            DirectionClass: stock.Change === 0 ? 'even' : stock.Price >= 0 ? 'up' : 'down'
+            Direction: stock.Change === 0 ? '' : stock.Change >= 0 ? up : down,
+            DirectionClass: stock.Change === 0 ? 'even' : stock.Change >= 0 ? 'up' : 'down'
         });
     }
 
     ticker.updateStockPrice = function (stock) {
         var displayStock = formatStock(stock),
             $row = $(rowTemplate.supplant(displayStock)),
-            $li = $(liTemplate.supplant(displayStock));
-        $stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
-            .replaceWith($row);
+            $li = $(liTemplate.supplant(displayStock)),
+            origChange = parseInt($stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
+                .replaceWith($row)
+                .find('td.change')
+                .attr('data-change'), 10),
+            bg = origChange === stock.Change
+                ? '255,216,0' // yellow
+                : origChange < stock.Change
+                    ? '154,240,117' // green
+                    : '255,148,148'; // red
+
         $stockTickerUl.find('li[data-symbol=' + stock.Symbol + ']')
             .replaceWith($li);
-        // TODO: Make it flash red/green depending on whether it went down/up
-        $row.flash('255,255,0', 1000);
-        $li.flash('255,255,0', 1000);
+        
+        $row.flash(bg, 1000);
+        $li.flash(bg, 1000);
     };
 
     ticker.marketOpened = function () {
@@ -83,6 +91,7 @@ $(function () {
         return ticker.getAllStocks()
             .done(function (stocks) {
                 $stockTableBody.empty();
+                $stockTickerUl.empty();
                 $.each(stocks, function () {
                     var stock = formatStock(this);
                     $stockTableBody.append(rowTemplate.supplant(stock));
@@ -105,17 +114,11 @@ $(function () {
     });
 
     $("#open").click(function () {
-        ticker.openMarket()
-            .done(function() {
-                //ticker.marketOpened();
-            });
+        ticker.openMarket();
     });
 
     $("#close").click(function () {
-        ticker.closeMarket()
-            .done(function () {
-                //ticker.marketClosed();
-            });
+        ticker.closeMarket();
     });
 
     $("#reset").click(function () {
