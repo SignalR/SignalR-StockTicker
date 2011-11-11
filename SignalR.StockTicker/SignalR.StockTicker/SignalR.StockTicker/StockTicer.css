@@ -38,7 +38,7 @@
         margin-right: 8px;   
     }
 
-        #stockTicker li:last {
+        #stockTicker li:last-child {
             margin-right: 0;
         }
     
