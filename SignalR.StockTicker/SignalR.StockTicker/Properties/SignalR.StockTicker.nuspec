@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>SignalR.Sample</id>
-    <version>0.1</version>
+    <version>0.1.1</version>
     <authors>Damian Edwards</authors>
     <licenseUrl>https://github.com/SignalR/SignalR/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://signalr.net</projectUrl>
@@ -14,6 +14,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\SignalR.StockTicker\*.*" target="content\SignalR.Sample" />
+    <file src="..\SignalR.StockTicker\*.*" target="content\_SignalR.Sample" />
   </files>
 </package>
