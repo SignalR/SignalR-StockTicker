@@ -34,10 +34,14 @@
     }
 
     #stockTicker li {
-        display: inline;
+        display: inline-block;
         margin-right: 8px;   
     }
 
+        #stockTicker li:last {
+            margin-right: 0;
+        }
+    
     /*<li data-symbol="{Symbol}"><span class="symbol">{Symbol}</span> <span class="price">{Price}</span> <span class="change"><span class="dir {DirectionClass}">{Direction}</span> {Change} ({PercentChange})</span></li>*/
     #stockTicker .symbol {
         font-weight: bold;

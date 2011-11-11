@@ -11,7 +11,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         private readonly static Lazy<StockTicker> _instance = new Lazy<StockTicker>(() => new StockTicker());
         private readonly static object _marketStateLock = new object();
         private readonly ConcurrentDictionary<string, Stock> _stocks = new ConcurrentDictionary<string, Stock>();
-        private readonly double _rangePercent = .008;
+        private readonly double _rangePercent = .008; //stock can go up or down by a percentage of this factor on each change
         private readonly int _updateInterval = 250; //ms
         private Timer _timer;
         private readonly object _updateStockPricesLock = new object();

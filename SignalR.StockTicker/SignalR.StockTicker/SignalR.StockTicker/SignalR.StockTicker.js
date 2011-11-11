@@ -24,7 +24,7 @@ $(function () {
         down = '▼',
         $stockTable = $('#stockTable'),
         $stockTableBody = $stockTable.find('tbody'),
-        rowTemplate = '<tr data-symbol="{Symbol}"><td>{Symbol}</td><td>{Price}</td><td>{DayOpen}</td><td>{DayHigh}</td><td>{DayLow}</td><td class="change" data-change="{Change}"><span class="dir {DirectionClass}">{Direction}</span> {Change}</td><td>{PercentChange}</td></tr>',
+        rowTemplate = '<tr data-symbol="{Symbol}"><td>{Symbol}</td><td>{Price}</td><td>{DayOpen}</td><td>{DayHigh}</td><td>{DayLow}</td><td><span class="dir {DirectionClass}">{Direction}</span> {Change}</td><td>{PercentChange}</td></tr>',
         $stockTicker = $('#stockTicker'),
         $stockTickerUl = $stockTicker.find('ul'),
         liTemplate = '<li data-symbol="{Symbol}"><span class="symbol">{Symbol}</span> <span class="price">{Price}</span> <span class="change"><span class="dir {DirectionClass}">{Direction}</span> {Change} ({PercentChange})</span></li>';
@@ -42,16 +42,14 @@ $(function () {
         var displayStock = formatStock(stock),
             $row = $(rowTemplate.supplant(displayStock)),
             $li = $(liTemplate.supplant(displayStock)),
-            origChange = parseInt($stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
-                .replaceWith($row)
-                .find('td.change')
-                .attr('data-change'), 10),
-            bg = origChange === stock.Change
+            bg = stock.LastChange === 0
                 ? '255,216,0' // yellow
-                : origChange < stock.Change
+                : stock.LastChange > 0
                     ? '154,240,117' // green
                     : '255,148,148'; // red
 
+        $stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
+            .replaceWith($row);
         $stockTickerUl.find('li[data-symbol=' + stock.Symbol + ']')
             .replaceWith($li);
         
