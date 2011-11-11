@@ -1,5 +1,11 @@
 ﻿/// <reference path="../scripts/jquery-1.6.4.js" />
 /// <reference path="../scripts/jquery.signalr.js" />
+
+/*!
+    SignalR Stock Ticker Sample
+*/
+
+// Crockford's supplant method (poor man's templating)
 if (!String.prototype.supplant) {
     String.prototype.supplant = function (o) {
         return this.replace(/{([^{}]*)}/g,
@@ -11,6 +17,7 @@ if (!String.prototype.supplant) {
     };
 }
 
+// A simple background color flash effect that uses jQuery Color plugin
 jQuery.fn.flash = function (color, duration) {
     var current = this.css('backgroundColor');
     this.animate({ backgroundColor: 'rgb(' + color + ')' }, duration / 2)
@@ -19,7 +26,7 @@ jQuery.fn.flash = function (color, duration) {
 
 $(function () {
 
-    var ticker = $.connection.stockTicker,
+    var ticker = $.connection.stockTicker, // the generated client-side hub proxy
         up = '▲',
         down = '▼',
         $stockTable = $('#stockTable'),
@@ -38,6 +45,30 @@ $(function () {
         });
     }
 
+    function scrollTicker() {
+        var w = $stockTickerUl.width();
+        $stockTickerUl.css({ marginLeft: w });
+        $stockTickerUl.animate({ marginLeft: -w }, 15000, 'linear', scrollTicker);
+    }
+
+    function stopTicker() {
+        $stockTickerUl.stop();
+    }
+
+    function init() {
+        return ticker.getAllStocks()
+            .done(function (stocks) {
+            $stockTableBody.empty();
+            $stockTickerUl.empty();
+            $.each(stocks, function () {
+                var stock = formatStock(this);
+                $stockTableBody.append(rowTemplate.supplant(stock));
+                $stockTickerUl.append(liTemplate.supplant(stock));
+            });
+        });
+    }
+
+    // Add client-side hub methods that the server will call
     ticker.updateStockPrice = function (stock) {
         var displayStock = formatStock(stock),
             $row = $(rowTemplate.supplant(displayStock)),
@@ -75,29 +106,7 @@ $(function () {
         init();
     };
 
-    function scrollTicker() {
-        var w = $stockTickerUl.width();
-        $stockTickerUl.css({ marginLeft: w });
-        $stockTickerUl.animate({ marginLeft: -w }, 15000, 'linear', scrollTicker);
-    }
-
-    function stopTicker() {
-        $stockTickerUl.stop();
-    }
-
-    function init() {
-        return ticker.getAllStocks()
-            .done(function (stocks) {
-                $stockTableBody.empty();
-                $stockTickerUl.empty();
-                $.each(stocks, function () {
-                    var stock = formatStock(this);
-                    $stockTableBody.append(rowTemplate.supplant(stock));
-                    $stockTickerUl.append(liTemplate.supplant(stock));
-                });
-            });
-    }
-
+    // Start the connection
     $.connection.hub.start(function () {
         init().done(function () {
             ticker.getMarketState()
@@ -111,6 +120,7 @@ $(function () {
         });
     });
 
+    // Wire up the buttons
     $("#open").click(function () {
         ticker.openMarket();
     });

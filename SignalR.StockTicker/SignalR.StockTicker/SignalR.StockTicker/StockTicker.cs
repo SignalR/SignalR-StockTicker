@@ -54,7 +54,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
                         MarketState = MarketState.Opening;
                         _timer = new Timer(UpdateStockPrices, null, _updateInterval, _updateInterval);
                         MarketState = MarketState.Open;
-                        Hub.GetClients<StockTickerHub>().marketOpened();
+                        BroadcastMarketStateChange(MarketState.Open);
                     }
                 }
             }
@@ -74,7 +74,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
                             _timer.Dispose();
                         }
                         MarketState = MarketState.Closed;
-                        Hub.GetClients<StockTickerHub>().marketClosed();
+                        BroadcastMarketStateChange(MarketState.Closed);
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
                 }
                 _stocks.Clear();
                 LoadDefaultStocks();
-                Hub.GetClients<StockTickerHub>().marketReset();
+                BroadcastMarketStateChange(MarketState.Reset);
             }
         }
 
@@ -151,6 +151,25 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             return true;
         }
 
+        private static void BroadcastMarketStateChange(MarketState marketState)
+        {
+            var clients = Hub.GetClients<StockTickerHub>();
+            switch (marketState)
+            {
+                case MarketState.Open:
+                    clients.marketOpened();
+                    break;
+                case MarketState.Closed:
+                    clients.marketClosed();
+                    break;
+                case MarketState.Reset:
+                    clients.marketReset();
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void BroadcastStockPrice(Stock stock)
         {
             Hub.GetClients<StockTickerHub>().updateStockPrice(stock);
@@ -170,6 +189,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         Open,
         Opening,
         Closing,
-        Closed
+        Closed,
+        Reset
     }
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>SignalR.Sample</id>
+    <version>0.1</version>
+    <authors>Damian Edwards</authors>
+    <licenseUrl>https://github.com/SignalR/SignalR/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>http://signalr.net</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A simple fake stock ticker sample for SignalR.</description>
+    <dependencies>
+      <dependency id="SignalR" />
+      <dependency id="jquery.color" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\SignalR.StockTicker\*.*" target="content\SignalR.Sample" />
+  </files>
+</package>
