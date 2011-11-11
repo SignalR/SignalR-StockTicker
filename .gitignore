@@ -13,6 +13,6 @@ _ReSharper.*
 *.csproj.user
 *[Rr]e[Ss]harper.user
 _ReSharper.*/
-packages/*
+*/packages/*
 artifacts/*
 msbuild.log

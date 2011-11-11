@@ -70,8 +70,8 @@
     <Content Include="Scripts\jquery.signalR.js" />
     <Content Include="Scripts\jquery.signalR.min.js" />
     <None Include="SignalR.StockTicker\SignalR.StockTicker.js" />
-    <None Include="SignalR.StockTicker\StockTicer.css" />
     <None Include="SignalR.StockTicker\StockTicker.html" />
+    <Content Include="SignalR.StockTicker\StockTicker.css" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
