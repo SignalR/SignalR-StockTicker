@@ -1,8 +1,10 @@
 ﻿/// <reference path="../scripts/jquery-1.6.4.js" />
 /// <reference path="../scripts/jquery.signalr.js" />
+/// <reference path="../scripts/knockout-1.3.0beta.debug.js" />
+/// <reference path="../scripts/knockout.mapping-latest.debug.js" />
 
 /*!
-    SignalR Stock Ticker Sample
+SignalR Stock Ticker Sample
 */
 
 // Crockford's supplant method (poor man's templating)
@@ -19,97 +21,81 @@ if (!String.prototype.supplant) {
 
 // A simple background color flash effect that uses jQuery Color plugin
 jQuery.fn.flash = function (color, duration) {
-    var current = this.css('backgroundColor');
-    this.animate({ backgroundColor: 'rgb(' + color + ')' }, duration / 2)
-        .animate({ backgroundColor: current }, duration / 2);
-}
+    var that = this;
+    that.queue(function () {
+        var current = that.css('backgroundColor');
+        that.animate({ backgroundColor: 'rgb(' + color + ')' }, duration / 2)
+            .animate({ backgroundColor: current }, duration / 2);
+        $(this).dequeue();
+    });
+};
+
+ko.bindingHandlers.flash = {
+    update: function (e, v) {
+        $(e).flash(ko.utils.unwrapObservable(v()), 1000);
+    }
+};
 
 $(function () {
 
-    var ticker = $.connection.stockTicker, // the generated client-side hub proxy
-        up = '▲',
-        down = '▼',
-        $stockTable = $('#stockTable'),
-        $stockTableBody = $stockTable.find('tbody'),
-        rowTemplate = '<tr data-symbol="{Symbol}"><td>{Symbol}</td><td>{Price}</td><td>{DayOpen}</td><td>{DayHigh}</td><td>{DayLow}</td><td><span class="dir {DirectionClass}">{Direction}</span> {Change}</td><td>{PercentChange}</td></tr>',
-        $stockTicker = $('#stockTicker'),
-        $stockTickerUl = $stockTicker.find('ul'),
-        liTemplate = '<li data-symbol="{Symbol}"><span class="symbol">{Symbol}</span> <span class="price">{Price}</span> <span class="change"><span class="dir {DirectionClass}">{Direction}</span> {Change} ({PercentChange})</span></li>';
+    function stockViewModel(data) {
+        ko.mapping.fromJS(data, {}, this);
 
-    function formatStock(stock) {
-        return $.extend(stock, {
-            Price: stock.Price.toFixed(2),
-            PercentChange: (stock.PercentChange * 100).toFixed(2) + '%',
-            Direction: stock.Change === 0 ? '' : stock.Change >= 0 ? up : down,
-            DirectionClass: stock.Change === 0 ? 'even' : stock.Change >= 0 ? 'up' : 'down'
-        });
-    }
+        var up = '▲',
+            down = '▼';
 
-    function scrollTicker() {
-        var w = $stockTickerUl.width();
-        $stockTickerUl.css({ marginLeft: w });
-        $stockTickerUl.animate({ marginLeft: -w }, 15000, 'linear', scrollTicker);
-    }
+        this.CurrentPrice = ko.dependentObservable(function () {
+            return this.Price().toFixed(2);
+        }, this);
+        this.CurrentPercentChange = ko.dependentObservable(function () {
+            return (this.PercentChange() * 100).toFixed(2) + '%';
+        }, this);
+        this.Direction = ko.dependentObservable(function () {
+            return this.Change() === 0 ? '' : this.Change() >= 0 ? up : down;
+        }, this);
+        this.Even = ko.dependentObservable(function () {
+            return this.Change() === 0;
+        }, this);
+        this.Up = ko.dependentObservable(function () {
+            return this.Change() > 0;
+        }, this);
+        this.Down = ko.dependentObservable(function () {
+            return this.Change() < 0;
+        }, this);
+        this.FlashColor = ko.dependentObservable(function () {
+            var value = this.LastChange();
+            return value === 0 ? '255,216,0' : (value > 0 ? '154,240,117' : '255,148,148');
+        }, this);
 
-    function stopTicker() {
-        $stockTickerUl.stop();
-    }
+        this.stockUpdated = function (e) {
+            var value = this.LastChange();
+            $(e).flash(value === 0 ? '255,216,0' : (value > 0 ? '154,240,117' : '255,148,148'), 1000);
+        };
 
-    function init() {
-        return ticker.getAllStocks()
-            .done(function (stocks) {
-            $stockTableBody.empty();
-            $stockTickerUl.empty();
-            $.each(stocks, function () {
-                var stock = formatStock(this);
-                $stockTableBody.append(rowTemplate.supplant(stock));
-                $stockTickerUl.append(liTemplate.supplant(stock));
-            });
-        });
-    }
-
-    // Add client-side hub methods that the server will call
-    ticker.updateStockPrice = function (stock) {
-        var displayStock = formatStock(stock),
-            $row = $(rowTemplate.supplant(displayStock)),
-            $li = $(liTemplate.supplant(displayStock)),
-            bg = stock.LastChange === 0
-                ? '255,216,0' // yellow
-                : stock.LastChange > 0
-                    ? '154,240,117' // green
-                    : '255,148,148'; // red
-
-        $stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
-            .replaceWith($row);
-        $stockTickerUl.find('li[data-symbol=' + stock.Symbol + ']')
-            .replaceWith($li);
-        
-        $row.flash(bg, 1000);
-        $li.flash(bg, 1000);
+        return this;
     };
 
-    ticker.marketOpened = function () {
-        $("#open").prop("disabled", true);
-        $("#close").prop("disabled", false);
-        $("#reset").prop("disabled", true);
-        scrollTicker();
-    };
+    function stockTickerViewModel() {
+        var ticker = $.connection.stockTicker,
+            self = this;
 
-    ticker.marketClosed = function () {
-        $("#open").prop("disabled", false);
-        $("#close").prop("disabled", true);
-        $("#reset").prop("disabled", false);
-        stopTicker();
-    };
+        ko.mapping.fromJS({ stocks: [] }, {
+            'stocks': {
+                key: function (data) { return ko.utils.unwrapObservable(data.Symbol); },
+                create: function (options) { return new stockViewModel(options.data); }
+            }
+        }, this);
 
-    ticker.marketReset = function () {
-        init();
-    };
+        function init() {
+            return ticker.getAllStocks()
+                .done(function (stocks) {
+                    ko.mapping.fromJS({ stocks: stocks }, self);
+                });
+        }
 
-    // Start the connection
-    $.connection.hub.start(function () {
-        init().done(function () {
-            ticker.getMarketState()
+        $.connection.hub.start(function () {
+            init().done(function () {
+                ticker.getMarketState()
                 .done(function (state) {
                     if (state === 'Open') {
                         ticker.marketOpened();
@@ -117,19 +103,59 @@ $(function () {
                         ticker.marketClosed();
                     }
                 });
+            });
         });
-    });
 
-    // Wire up the buttons
-    $("#open").click(function () {
-        ticker.openMarket();
-    });
+        this.tickerVisible = ko.observable(false);
 
-    $("#close").click(function () {
-        ticker.closeMarket();
-    });
+        this.openDisabled = ko.observable(true);
+        this.openMarket = function (e) {
+            ticker.openMarket();
+        };
+        this.closeDisabled = ko.observable(true);
+        this.closeMarket = function (e) {
+            ticker.closeMarket();
+        };
+        this.resetDisabled = ko.observable(true);
+        this.resetTicker = function (e) {
+            ticker.reset();
+        };
 
-    $("#reset").click(function () {
-        ticker.reset();
-    });
+        ticker.updateStockPrice = function (stock) {
+            var stockVm = self.stocks().filter(function (s) { return s.Symbol() == stock.Symbol; });
+            if (stockVm.length == 0) return;
+            ko.mapping.fromJS(stock, stockVm[0]);
+        };
+        ticker.marketOpened = function () {
+            self.openDisabled(true);
+            self.closeDisabled(false);
+            self.resetDisabled(true);
+            self.tickerVisible(true);
+            scrollTicker();
+        };
+        ticker.marketClosed = function () {
+            self.openDisabled(false);
+            self.closeDisabled(true);
+            self.resetDisabled(false);
+            self.tickerVisible(false);
+            stopTicker();
+        };
+        ticker.marketReset = function () {
+            init();
+        };
+
+        var $scrollingTicker = $('#stockTicker ul');
+        function scrollTicker() {
+            var w = $scrollingTicker.width();
+            $scrollingTicker.css({ marginLeft: w });
+            $scrollingTicker.animate({ marginLeft: -w }, 15000, 'linear', scrollTicker);
+        }
+        function stopTicker() {
+            $scrollingTicker.stop();
+        }
+
+        return this;
+    };
+
+    ko.applyBindings(new stockTickerViewModel());
 });
