@@ -71,6 +71,10 @@
     <Content Include="Scripts\jquery.signalR.min.js" />
     <None Include="SignalR.StockTicker\SignalR.StockTicker.js" />
     <None Include="SignalR.StockTicker\StockTicker.html" />
+    <Content Include="Scripts\knockout-1.3.0beta.debug.js" />
+    <Content Include="Scripts\knockout-1.3.0beta.js" />
+    <Content Include="Scripts\knockout.mapping-latest.debug.js" />
+    <Content Include="Scripts\knockout.mapping-latest.js" />
     <Content Include="SignalR.StockTicker\StockTicker.css" />
     <Content Include="Web.config" />
   </ItemGroup>
