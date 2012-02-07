@@ -15,6 +15,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         private readonly ConcurrentDictionary<string, Stock> _stocks = new ConcurrentDictionary<string, Stock>();
         private readonly double _rangePercent = .008; //stock can go up or down by a percentage of this factor on each change
         private readonly int _updateInterval = 250; //ms
+        // This is used as an singleton instance so we'll never both disposing the timer
         private Timer _timer;
         private readonly object _updateStockPricesLock = new object();
         private bool _updatingStockPrices = false;
@@ -180,14 +181,6 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         private static dynamic GetClients()
         {
             return AspNetHost.DependencyResolver.Resolve<IConnectionManager>().GetClients<StockTickerHub>();
-        }
-
-        ~StockTicker()
-        {
-            if (_timer != null)
-            {
-                _timer.Dispose();
-            }
         }
     }
 
