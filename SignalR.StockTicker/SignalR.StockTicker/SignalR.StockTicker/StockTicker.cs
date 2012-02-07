@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using SignalR.Hubs;
+using SignalR.Hosting.AspNet;
+using SignalR.Infrastructure;
 
 namespace SignalR.StockTicker.SignalR.StockTicker
 {
@@ -153,7 +155,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 
         private static void BroadcastMarketStateChange(MarketState marketState)
         {
-            var clients = Hub.GetClients<StockTickerHub>();
+            var clients = GetClients();
             switch (marketState)
             {
                 case MarketState.Open:
@@ -172,7 +174,12 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 
         private void BroadcastStockPrice(Stock stock)
         {
-            Hub.GetClients<StockTickerHub>().updateStockPrice(stock);
+            GetClients().updateStockPrice(stock);
+        }
+
+        private static dynamic GetClients()
+        {
+            return AspNetHost.DependencyResolver.Resolve<IConnectionManager>().GetClients<StockTickerHub>();
         }
 
         ~StockTicker()
