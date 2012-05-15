@@ -180,7 +180,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 
         private static dynamic GetClients()
         {
-            return AspNetHost.DependencyResolver.Resolve<IConnectionManager>().GetClients<StockTickerHub>();
+            return GlobalHost.ConnectionManager.GetHubContext<StockTickerHub>().Clients;
         }
     }
 
