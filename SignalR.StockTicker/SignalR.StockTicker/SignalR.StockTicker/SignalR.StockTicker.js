@@ -1,5 +1,5 @@
-﻿/// <reference path="../scripts/jquery-1.6.4.js" />
-/// <reference path="../scripts/jquery.signalr.js" />
+﻿/// <reference path="../scripts/jquery-1.7.2.js" />
+/// <reference path="../scripts/jquery.signalR-0.5.2.js" />
 
 /*!
     SignalR Stock Ticker Sample
@@ -56,8 +56,7 @@ $(function () {
     }
 
     function init() {
-        return ticker.getAllStocks()
-            .done(function (stocks) {
+        return ticker.getAllStocks().done(function (stocks) {
             $stockTableBody.empty();
             $stockTickerUl.empty();
             $.each(stocks, function () {
@@ -103,22 +102,24 @@ $(function () {
     };
 
     ticker.marketReset = function () {
-        init();
+        return init();
     };
 
     // Start the connection
-    $.connection.hub.start(function () {
-        init().done(function () {
-            ticker.getMarketState()
-                .done(function (state) {
-                    if (state === 'Open') {
-                        ticker.marketOpened();
-                    } else {
-                        ticker.marketClosed();
-                    }
-                });
+    $.connection.hub.start()
+        .done(function () {
+            return init();
+        })
+        .done(function () {
+            return ticker.getMarketState();
+        })
+        .done(function (state) {
+            if (state === 'Open') {
+                ticker.marketOpened();
+            } else {
+                ticker.marketClosed();
+            }
         });
-    });
 
     // Wire up the buttons
     $("#open").click(function () {
