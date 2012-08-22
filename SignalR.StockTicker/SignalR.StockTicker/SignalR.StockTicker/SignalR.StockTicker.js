@@ -1,5 +1,5 @@
-﻿/// <reference path="../scripts/jquery-1.7.2.js" />
-/// <reference path="../scripts/jquery.signalR-0.5.2.js" />
+﻿/// <reference path="../scripts/jquery-1.8.0.js" />
+/// <reference path="../scripts/jquery.signalR-0.5.3.js" />
 
 /*!
     SignalR Stock Ticker Sample
@@ -68,49 +68,49 @@ $(function () {
     }
 
     // Add client-side hub methods that the server will call
-    ticker.updateStockPrice = function (stock) {
-        var displayStock = formatStock(stock),
-            $row = $(rowTemplate.supplant(displayStock)),
-            $li = $(liTemplate.supplant(displayStock)),
-            bg = stock.LastChange === 0
-                ? '255,216,0' // yellow
-                : stock.LastChange > 0
-                    ? '154,240,117' // green
-                    : '255,148,148'; // red
+    $.extend(ticker, {
+        updateStockPrice: function (stock) {
+            var displayStock = formatStock(stock),
+                $row = $(rowTemplate.supplant(displayStock)),
+                $li = $(liTemplate.supplant(displayStock)),
+                bg = stock.LastChange === 0
+                    ? '255,216,0' // yellow
+                    : stock.LastChange > 0
+                        ? '154,240,117' // green
+                        : '255,148,148'; // red
 
-        $stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
-            .replaceWith($row);
-        $stockTickerUl.find('li[data-symbol=' + stock.Symbol + ']')
-            .replaceWith($li);
-        
-        $row.flash(bg, 1000);
-        $li.flash(bg, 1000);
-    };
+            $stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
+                .replaceWith($row);
+            $stockTickerUl.find('li[data-symbol=' + stock.Symbol + ']')
+                .replaceWith($li);
 
-    ticker.marketOpened = function () {
-        $("#open").prop("disabled", true);
-        $("#close").prop("disabled", false);
-        $("#reset").prop("disabled", true);
-        scrollTicker();
-    };
+            $row.flash(bg, 1000);
+            $li.flash(bg, 1000);
+        },
 
-    ticker.marketClosed = function () {
-        $("#open").prop("disabled", false);
-        $("#close").prop("disabled", true);
-        $("#reset").prop("disabled", false);
-        stopTicker();
-    };
+        marketOpened: function () {
+            $("#open").prop("disabled", true);
+            $("#close").prop("disabled", false);
+            $("#reset").prop("disabled", true);
+            scrollTicker();
+        },
 
-    ticker.marketReset = function () {
-        return init();
-    };
+        marketClosed: function () {
+            $("#open").prop("disabled", false);
+            $("#close").prop("disabled", true);
+            $("#reset").prop("disabled", false);
+            stopTicker();
+        },
+
+        marketReset: function () {
+            return init();
+        }
+    });
 
     // Start the connection
     $.connection.hub.start()
-        .done(function () {
-            return init();
-        })
-        .done(function () {
+        .pipe(init)
+        .pipe(function () {
             return ticker.getMarketState();
         })
         .done(function (state) {
@@ -119,18 +119,18 @@ $(function () {
             } else {
                 ticker.marketClosed();
             }
+
+            // Wire up the buttons
+            $("#open").click(function () {
+                ticker.openMarket();
+            });
+
+            $("#close").click(function () {
+                ticker.closeMarket();
+            });
+
+            $("#reset").click(function () {
+                ticker.reset();
+            });
         });
-
-    // Wire up the buttons
-    $("#open").click(function () {
-        ticker.openMarket();
-    });
-
-    $("#close").click(function () {
-        ticker.closeMarket();
-    });
-
-    $("#reset").click(function () {
-        ticker.reset();
-    });
 });
