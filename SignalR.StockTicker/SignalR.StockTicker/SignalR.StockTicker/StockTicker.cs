@@ -2,11 +2,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using SignalR.Hubs;
-using SignalR.Hosting.AspNet;
-using SignalR.Infrastructure;
+using Microsoft.AspNet.SignalR.Hubs;
 
-namespace SignalR.StockTicker.SignalR.StockTicker
+namespace Microsoft.AspNet.SignalR.StockTicker
 {
     public class StockTicker
     {
@@ -21,6 +19,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
         private bool _updatingStockPrices = false;
         private readonly Random _updateOrNotRandom = new Random();
         private MarketState _marketState = MarketState.Closed;
+        private readonly Lazy<IHubConnectionContext> _clientsInstance = new Lazy<IHubConnectionContext>(() => GlobalHost.ConnectionManager.GetHubContext<StockTickerHub>().Clients);
 
         private StockTicker()
         {
@@ -33,6 +32,11 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             {
                 return _instance.Value;
             }
+        }
+
+        private IHubConnectionContext Clients
+        {
+            get { return _clientsInstance.Value; }
         }
 
         public MarketState MarketState
@@ -154,19 +158,18 @@ namespace SignalR.StockTicker.SignalR.StockTicker
             return true;
         }
 
-        private static void BroadcastMarketStateChange(MarketState marketState)
+        private void BroadcastMarketStateChange(MarketState marketState)
         {
-            var clients = GetClients();
             switch (marketState)
             {
                 case MarketState.Open:
-                    clients.marketOpened();
+                    Clients.All.marketOpened();
                     break;
                 case MarketState.Closed:
-                    clients.marketClosed();
+                    Clients.All.marketClosed();
                     break;
                 case MarketState.Reset:
-                    clients.marketReset();
+                    Clients.All.marketReset();
                     break;
                 default:
                     break;
@@ -175,12 +178,7 @@ namespace SignalR.StockTicker.SignalR.StockTicker
 
         private void BroadcastStockPrice(Stock stock)
         {
-            GetClients().updateStockPrice(stock);
-        }
-
-        private static dynamic GetClients()
-        {
-            return GlobalHost.ConnectionManager.GetHubContext<StockTickerHub>().Clients;
+            Clients.All.updateStockPrice(stock);
         }
     }
 

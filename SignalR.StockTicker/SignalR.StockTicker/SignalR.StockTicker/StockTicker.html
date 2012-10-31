@@ -18,7 +18,7 @@
                 <tr><th>Symbol</th><th>Price</th><th>Open</th><th>High</th><th>Low</th><th>Change</th><th>%</th></tr>
             </thead>
             <tbody>
-
+                <tr class="loading"><td colspan="7">loading...</td></tr>
             </tbody>
         </table>
     </div>
@@ -26,13 +26,15 @@
     <h2>Live Stock Ticker</h2>
     <div id="stockTicker">
         <div class="inner">
-            <ul></ul>
+            <ul>
+                <li class="loading">loading...</li>
+            </ul>
         </div>
     </div>
 
-    <script src="../Scripts/jquery-1.8.0.js"></script>
-    <script src="../Scripts/jquery.signalR-0.5.3.js"></script>
-    <script src="../Scripts/jquery.color.js"></script>
+    <script src="../bundles/jquery"></script>
+    <script src="../bundles/jquerycolor"></script>
+    <script src="../Scripts/jquery.signalR-1.0.0-alpha1.js"></script>
     <script src="../signalr/hubs"></script>
     <script src="SignalR.StockTicker.js"></script>
 </body>

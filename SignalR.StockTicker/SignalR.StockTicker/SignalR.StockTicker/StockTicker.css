@@ -15,6 +15,10 @@
         text-align: right;
     }
 
+#stockTable .loading td {
+    text-align: left;
+}
+
 #stockTicker {
     overflow: hidden;
     width: 370px;

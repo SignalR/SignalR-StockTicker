@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <package>
   <metadata>
-    <id>SignalR.Sample</id>
-    <version>0.3.4</version>
-    <authors>Damian Edwards</authors>
+    <id>Microsoft.AspNet.SignalR.Sample</id>
+    <version>1.0.0-alpha1</version>
+    <authors>Microsoft</authors>
     <licenseUrl>https://github.com/SignalR/SignalR/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://signalr.net</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A simple fake stock ticker sample for SignalR.</description>
+    <description>A simple fake stock ticker sample for ASP.NET SignalR.</description>
     <dependencies>
-      <dependency id="SignalR" version="0.5.3" />
-      <dependency id="jquery" version="1.8.0" />
-      <dependency id="jquery.color" version="1.0.1" />
+      <dependency id="Microsoft.AspNet.SignalR" version="1.0.0-alpha1" />
+      <dependency id="jquery" version="1.8.2" />
+      <dependency id="jquery.color" version="2.1.0" />
     </dependencies>
   </metadata>
   <files>

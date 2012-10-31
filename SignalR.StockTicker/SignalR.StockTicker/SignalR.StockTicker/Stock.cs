@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SignalR.StockTicker.SignalR.StockTicker
+namespace Microsoft.AspNet.SignalR.StockTicker
 {
     public class Stock
     {

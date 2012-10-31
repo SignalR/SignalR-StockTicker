@@ -1,5 +1,5 @@
 ﻿/// <reference path="../scripts/jquery-1.8.0.js" />
-/// <reference path="../scripts/jquery.signalR-0.5.3.js" />
+/// <reference path="../scripts/jquery.signalR-1.0.0-alpha1.js" />
 
 /*!
     SignalR Stock Ticker Sample
@@ -56,7 +56,7 @@ $(function () {
     }
 
     function init() {
-        return ticker.getAllStocks().done(function (stocks) {
+        return ticker.server.getAllStocks().done(function (stocks) {
             $stockTableBody.empty();
             $stockTickerUl.empty();
             $.each(stocks, function () {
@@ -68,7 +68,7 @@ $(function () {
     }
 
     // Add client-side hub methods that the server will call
-    $.extend(ticker, {
+    $.extend(ticker.client, {
         updateStockPrice: function (stock) {
             var displayStock = formatStock(stock),
                 $row = $(rowTemplate.supplant(displayStock)),
@@ -111,26 +111,26 @@ $(function () {
     $.connection.hub.start()
         .pipe(init)
         .pipe(function () {
-            return ticker.getMarketState();
+            return ticker.server.getMarketState();
         })
         .done(function (state) {
             if (state === 'Open') {
-                ticker.marketOpened();
+                ticker.client.marketOpened();
             } else {
-                ticker.marketClosed();
+                ticker.client.marketClosed();
             }
 
             // Wire up the buttons
             $("#open").click(function () {
-                ticker.openMarket();
+                ticker.server.openMarket();
             });
 
             $("#close").click(function () {
-                ticker.closeMarket();
+                ticker.server.closeMarket();
             });
 
             $("#reset").click(function () {
-                ticker.reset();
+                ticker.server.reset();
             });
         });
 });
