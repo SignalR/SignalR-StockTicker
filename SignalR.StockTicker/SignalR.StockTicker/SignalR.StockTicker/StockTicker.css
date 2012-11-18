@@ -21,7 +21,7 @@
 
 #stockTicker {
     overflow: hidden;
-    width: 370px;
+    width: 450px;
     height: 24px;
     border: 1px solid #999;
 }
@@ -38,7 +38,7 @@
     }
 
     #stockTicker li {
-        display: inline;
+        display: inline-block;
         margin-right: 8px;   
     }
 

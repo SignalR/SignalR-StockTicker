@@ -2,21 +2,22 @@
 <package>
   <metadata>
     <id>Microsoft.AspNet.SignalR.Sample</id>
-    <version>1.0.0-alpha1</version>
+    <version>1.0.0-alpha2</version>
     <authors>Microsoft</authors>
     <licenseUrl>https://github.com/SignalR/SignalR/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://signalr.net</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A simple fake stock ticker sample for ASP.NET SignalR.</description>
     <dependencies>
-      <dependency id="Microsoft.AspNet.SignalR" version="1.0.0-alpha1" />
+      <dependency id="Microsoft.AspNet.SignalR" version="1.0.0-alpha2" />
       <dependency id="Microsoft.AspNet.Web.Optimization" version="1.0.0" />
-      <dependency id="WebActivator" version="1.5.1" />
+      <dependency id="WebActivator" version="1.5.2" />
       <dependency id="jquery" version="1.8.2" />
       <dependency id="jquery.color" version="2.1.0" />
     </dependencies>
   </metadata>
   <files>
     <file src="..\SignalR.StockTicker\*.*" target="content\SignalR.Sample" />
+    <file src="..\App_Start\*.*" target="content\App_Start" />
   </files>
 </package>
