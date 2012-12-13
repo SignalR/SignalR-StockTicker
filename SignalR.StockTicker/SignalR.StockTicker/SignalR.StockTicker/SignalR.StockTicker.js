@@ -1,8 +1,8 @@
-﻿/// <reference path="../scripts/jquery-1.8.0.js" />
-/// <reference path="../scripts/jquery.signalR-1.0.0-alpha1.js" />
+﻿/// <reference path="../scripts/jquery-1.8.3.js" />
+/// <reference path="../scripts/jquery.signalR-1.0.0-rc1.js" />
 
 /*!
-    SignalR Stock Ticker Sample
+    ASP.NET SignalR Stock Ticker Sample
 */
 
 // Crockford's supplant method (poor man's templating)
