@@ -2,14 +2,14 @@
 <package>
   <metadata>
     <id>Microsoft.AspNet.SignalR.Sample</id>
-    <version>1.0.0-rc2</version>
+    <version>1.0.0</version>
     <authors>Microsoft</authors>
     <licenseUrl>https://github.com/SignalR/SignalR/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://www.asp.net/signalr</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A simple fake stock ticker sample for ASP.NET SignalR.</description>
     <dependencies>
-      <dependency id="Microsoft.AspNet.SignalR" version="1.0.0-rc2" />
+      <dependency id="Microsoft.AspNet.SignalR" version="1.0.0" />
       <dependency id="Microsoft.AspNet.Web.Optimization" version="1.0.0" />
       <dependency id="WebActivator" version="1.5.2" />
       <dependency id="jquery" version="1.8.3" />

@@ -1,5 +1,5 @@
 ﻿/// <reference path="../scripts/jquery-1.8.3.js" />
-/// <reference path="../scripts/jquery.signalR-1.0.0-rc1.js" />
+/// <reference path="../scripts/jquery.signalR-1.0.0.js" />
 
 /*!
     ASP.NET SignalR Stock Ticker Sample
