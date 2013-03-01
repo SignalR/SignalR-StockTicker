@@ -1,15 +1,15 @@
 /*!
- * jQuery Color Animations v2.1.0 - SVG Color Names
- * http://jquery.org/
+ * jQuery Color Animations v2.1.2 - SVG Color Names
+ * https://github.com/jquery/jquery-color
  *
  * Remaining HTML/CSS color names per W3C's CSS Color Module Level 3.
  * http://www.w3.org/TR/css3-color/#svg-color
  *
- * Copyright 2012 jQuery Foundation and other contributors
+ * Copyright 2013 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
- * Date: Fri Aug 24 12:02:24 2012 -0500
+ * Date: Wed Jan 16 08:47:09 2013 -0600
  */
 jQuery.extend( jQuery.Color.names, {
 	// 4.3. Extended color keywords (minus the basic ones in core color plugin)
@@ -142,5 +142,5 @@ jQuery.extend( jQuery.Color.names, {
 	violet: "#ee82ee",
 	wheat: "#f5deb3",
 	whitesmoke: "#f5f5f5",
-	yellowgreen: "#9acd32",
+	yellowgreen: "#9acd32"
 });
