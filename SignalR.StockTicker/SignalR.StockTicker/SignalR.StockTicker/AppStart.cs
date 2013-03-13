@@ -1,7 +1,7 @@
 ﻿using System.Web.Optimization;
 using Microsoft.AspNet.SignalR.StockTicker;
 
-[assembly:WebActivator.PostApplicationStartMethod(typeof(AppStart), "ConfigureBundles")]
+[assembly:WebActivatorEx.PostApplicationStartMethod(typeof(AppStart), "ConfigureBundles")]
 
 namespace Microsoft.AspNet.SignalR.StockTicker
 {

@@ -2,7 +2,7 @@ using System.Web;
 using System.Web.Routing;
 using Microsoft.AspNet.SignalR;
 
-[assembly: WebActivator.PreApplicationStartMethod(typeof(SignalR.StockTicker.RegisterHubs), "Start")]
+[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(SignalR.StockTicker.RegisterHubs), "Start")]
 
 namespace SignalR.StockTicker
 {

@@ -8,21 +8,28 @@ namespace Microsoft.AspNet.SignalR.StockTicker
 {
     public class StockTicker
     {
-        private readonly static Lazy<StockTicker> _instance = new Lazy<StockTicker>(() => new StockTicker());
-        private readonly static object _marketStateLock = new object();
-        private readonly ConcurrentDictionary<string, Stock> _stocks = new ConcurrentDictionary<string, Stock>();
-        private readonly double _rangePercent = .002; //stock can go up or down by a percentage of this factor on each change
-        private readonly int _updateInterval = 250; //ms
-        // This is used as an singleton instance so we'll never both disposing the timer
-        private Timer _timer;
-        private readonly object _updateStockPricesLock = new object();
-        private bool _updatingStockPrices = false;
-        private readonly Random _updateOrNotRandom = new Random();
-        private MarketState _marketState = MarketState.Closed;
-        private readonly Lazy<IHubConnectionContext> _clientsInstance = new Lazy<IHubConnectionContext>(() => GlobalHost.ConnectionManager.GetHubContext<StockTickerHub>().Clients);
+        // Singleton instance
+        private readonly static Lazy<StockTicker> _instance = new Lazy<StockTicker>(
+            () => new StockTicker(GlobalHost.ConnectionManager.GetHubContext<StockTickerHub>().Clients));
 
-        private StockTicker()
+        private readonly object _marketStateLock = new object();
+        private readonly object _updateStockPricesLock = new object();
+
+        private readonly ConcurrentDictionary<string, Stock> _stocks = new ConcurrentDictionary<string, Stock>();
+
+        // Stock can go up or down by a percentage of this factor on each change
+        private readonly double _rangePercent = 0.002;
+        
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(250);
+        private readonly Random _updateOrNotRandom = new Random();
+
+        private Timer _timer;
+        private volatile bool _updatingStockPrices;
+        private volatile MarketState _marketState;
+
+        private StockTicker(IHubConnectionContext clients)
         {
+            Clients = clients;
             LoadDefaultStocks();
         }
 
@@ -36,7 +43,8 @@ namespace Microsoft.AspNet.SignalR.StockTicker
 
         private IHubConnectionContext Clients
         {
-            get { return _clientsInstance.Value; }
+            get;
+            set;
         }
 
         public MarketState MarketState
@@ -52,37 +60,33 @@ namespace Microsoft.AspNet.SignalR.StockTicker
 
         public void OpenMarket()
         {
-            if (MarketState != MarketState.Open || MarketState != MarketState.Opening)
+            lock (_marketStateLock)
             {
-                lock (_marketStateLock)
+                if (MarketState != MarketState.Open)
                 {
-                    if (MarketState != MarketState.Open || MarketState != MarketState.Opening)
-                    {
-                        MarketState = MarketState.Opening;
-                        _timer = new Timer(UpdateStockPrices, null, _updateInterval, _updateInterval);
-                        MarketState = MarketState.Open;
-                        BroadcastMarketStateChange(MarketState.Open);
-                    }
+                    _timer = new Timer(UpdateStockPrices, null, _updateInterval, _updateInterval);
+
+                    MarketState = MarketState.Open;
+
+                    BroadcastMarketStateChange(MarketState.Open);
                 }
             }
         }
 
         public void CloseMarket()
         {
-            if (MarketState == MarketState.Open || MarketState == MarketState.Opening)
+            lock (_marketStateLock)
             {
-                lock (_marketStateLock)
+                if (MarketState == MarketState.Open)
                 {
-                    if (MarketState == MarketState.Open || MarketState == MarketState.Opening)
+                    if (_timer != null)
                     {
-                        MarketState = MarketState.Closing;
-                        if (_timer != null)
-                        {
-                            _timer.Dispose();
-                        }
-                        MarketState = MarketState.Closed;
-                        BroadcastMarketStateChange(MarketState.Closed);
+                        _timer.Dispose();
                     }
+
+                    MarketState = MarketState.Closed;
+
+                    BroadcastMarketStateChange(MarketState.Closed);
                 }
             }
         }
@@ -95,30 +99,29 @@ namespace Microsoft.AspNet.SignalR.StockTicker
                 {
                     throw new InvalidOperationException("Market must be closed before it can be reset.");
                 }
-                _stocks.Clear();
+                
                 LoadDefaultStocks();
-                BroadcastMarketStateChange(MarketState.Reset);
+                BroadcastMarketReset();
             }
         }
 
         private void LoadDefaultStocks()
         {
-            new List<Stock>
+            _stocks.Clear();
+
+            var stocks = new List<Stock>
             {
                 new Stock { Symbol = "MSFT", Price = 30.31m },
                 new Stock { Symbol = "APPL", Price = 578.18m },
                 new Stock { Symbol = "GOOG", Price = 570.30m }
-            }.ForEach(stock => _stocks.TryAdd(stock.Symbol, stock));
+            };
+
+            stocks.ForEach(stock => _stocks.TryAdd(stock.Symbol, stock));
         }
 
         private void UpdateStockPrices(object state)
         {
             // This function must be re-entrant as it's running as a timer interval handler
-            if (_updatingStockPrices)
-            {
-                return;
-            }
-
             lock (_updateStockPricesLock)
             {
                 if (!_updatingStockPrices)
@@ -127,7 +130,7 @@ namespace Microsoft.AspNet.SignalR.StockTicker
 
                     foreach (var stock in _stocks.Values)
                     {
-                        if (UpdateStockPrice(stock))
+                        if (TryUpdateStockPrice(stock))
                         {
                             BroadcastStockPrice(stock);
                         }
@@ -138,11 +141,11 @@ namespace Microsoft.AspNet.SignalR.StockTicker
             }
         }
 
-        private bool UpdateStockPrice(Stock stock)
+        private bool TryUpdateStockPrice(Stock stock)
         {
             // Randomly choose whether to udpate this stock or not
             var r = _updateOrNotRandom.NextDouble();
-            if (r > .1)
+            if (r > 0.1)
             {
                 return false;
             }
@@ -150,7 +153,7 @@ namespace Microsoft.AspNet.SignalR.StockTicker
             // Update the stock price by a random factor of the range percent
             var random = new Random((int)Math.Floor(stock.Price));
             var percentChange = random.NextDouble() * _rangePercent;
-            var pos = random.NextDouble() > .51;
+            var pos = random.NextDouble() > 0.51;
             var change = Math.Round(stock.Price * (decimal)percentChange, 2);
             change = pos ? change : -change;
 
@@ -168,12 +171,14 @@ namespace Microsoft.AspNet.SignalR.StockTicker
                 case MarketState.Closed:
                     Clients.All.marketClosed();
                     break;
-                case MarketState.Reset:
-                    Clients.All.marketReset();
-                    break;
                 default:
                     break;
             }
+        }
+
+        private void BroadcastMarketReset()
+        {
+            Clients.All.marketReset();
         }
 
         private void BroadcastStockPrice(Stock stock)
@@ -184,10 +189,7 @@ namespace Microsoft.AspNet.SignalR.StockTicker
 
     public enum MarketState
     {
-        Open,
-        Opening,
-        Closing,
         Closed,
-        Reset
+        Open
     }
 }
