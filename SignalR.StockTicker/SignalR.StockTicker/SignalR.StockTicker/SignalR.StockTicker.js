@@ -1,5 +1,5 @@
-﻿/// <reference path="../scripts/jquery-1.8.3.js" />
-/// <reference path="../scripts/jquery.signalR-1.0.0.js" />
+﻿/// <reference path="../scripts/jquery-1.9.1.js" />
+/// <reference path="../scripts/jquery.signalR-1.1.0-beta1.js" />
 
 /*!
     ASP.NET SignalR Stock Ticker Sample
@@ -73,11 +73,9 @@ $(function () {
             var displayStock = formatStock(stock),
                 $row = $(rowTemplate.supplant(displayStock)),
                 $li = $(liTemplate.supplant(displayStock)),
-                bg = stock.LastChange === 0
-                    ? '255,216,0' // yellow
-                    : stock.LastChange > 0
-                        ? '154,240,117' // green
-                        : '255,148,148'; // red
+                bg = stock.LastChange < 0
+                        ? '255,148,148' // red
+                        : '154,240,117'; // green
 
             $stockTableBody.find('tr[data-symbol=' + stock.Symbol + ']')
                 .replaceWith($row);
