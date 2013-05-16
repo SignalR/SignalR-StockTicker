@@ -10,7 +10,7 @@ namespace SignalR.StockTicker
     {
         public static void Start()
         {
-            // Register the default hubs route: ~/signalr/hubs
+            // Register the default hubs route: ~/signalr
             RouteTable.Routes.MapHubs();
         }
     }
