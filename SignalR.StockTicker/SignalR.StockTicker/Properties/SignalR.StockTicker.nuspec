@@ -11,7 +11,6 @@
     <dependencies>
       <dependency id="Microsoft.AspNet.SignalR" version="2.0.0" />
       <dependency id="Microsoft.AspNet.Web.Optimization" version="1.1.1" />
-      <dependency id="WebActivatorEx" version="2.0.3" />
       <dependency id="jquery" version="1.10.2" />
       <dependency id="jquery.color" version="2.1.2" />
     </dependencies>
