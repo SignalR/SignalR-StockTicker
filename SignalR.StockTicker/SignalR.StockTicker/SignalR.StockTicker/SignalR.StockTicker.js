@@ -1,5 +1,5 @@
-﻿/// <reference path="../scripts/jquery-1.10.2.js" />
-/// <reference path="../scripts/jquery.signalR-2.0.0.js" />
+﻿/// <reference path="../Scripts/jquery-1.10.2.js" />
+/// <reference path="../Scripts/jquery.signalR-2.0.0.js" />
 
 /*!
     ASP.NET SignalR Stock Ticker Sample
@@ -22,7 +22,7 @@ jQuery.fn.flash = function (color, duration) {
     var current = this.css('backgroundColor');
     this.animate({ backgroundColor: 'rgb(' + color + ')' }, duration / 2)
         .animate({ backgroundColor: current }, duration / 2);
-}
+};
 
 $(function () {
 
