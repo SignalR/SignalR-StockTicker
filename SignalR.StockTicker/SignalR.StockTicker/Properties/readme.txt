@@ -26,4 +26,4 @@ To enable and run the SignalR sample in your application follow these steps:
                 }
             }
 
-    3. Browse to ~/SignalR.StockTicker/StockTicker.html in two browsers and click the Open Market button.
+    3. Browse to ~/SignalR.Sample/StockTicker.html in two browsers and click the Open Market button.
