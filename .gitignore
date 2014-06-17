@@ -17,3 +17,4 @@ _ReSharper.*/
 artifacts/*
 msbuild.log
 *.nupkg
+*/*.sln.ide/*

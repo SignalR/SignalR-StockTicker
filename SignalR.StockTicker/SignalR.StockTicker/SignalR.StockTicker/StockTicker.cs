@@ -27,7 +27,7 @@ namespace Microsoft.AspNet.SignalR.StockTicker
         private volatile bool _updatingStockPrices;
         private volatile MarketState _marketState;
 
-        private StockTicker(IHubConnectionContext clients)
+        private StockTicker(IHubConnectionContext<dynamic> clients)
         {
             Clients = clients;
             LoadDefaultStocks();
@@ -41,7 +41,7 @@ namespace Microsoft.AspNet.SignalR.StockTicker
             }
         }
 
-        private IHubConnectionContext Clients
+        private IHubConnectionContext<dynamic> Clients
         {
             get;
             set;
@@ -111,9 +111,9 @@ namespace Microsoft.AspNet.SignalR.StockTicker
 
             var stocks = new List<Stock>
             {
-                new Stock { Symbol = "MSFT", Price = 30.31m },
-                new Stock { Symbol = "APPL", Price = 578.18m },
-                new Stock { Symbol = "GOOG", Price = 570.30m }
+                new Stock { Symbol = "MSFT", Price = 41.68m },
+                new Stock { Symbol = "AAPL", Price = 92.08m },
+                new Stock { Symbol = "GOOG", Price = 543.01m }
             };
 
             stocks.ForEach(stock => _stocks.TryAdd(stock.Symbol, stock));
