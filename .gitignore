@@ -18,3 +18,4 @@ artifacts/*
 msbuild.log
 *.nupkg
 */*.sln.ide/*
+.vs
