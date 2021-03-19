@@ -28,7 +28,7 @@ namespace Microsoft.AspNet.SignalR.StockTicker
         {
             get
             {
-                return (double)Math.Round(Change / Price, 4);
+                return (double)Math.Round(Change / DayOpen, 4);
             }
         }
 
