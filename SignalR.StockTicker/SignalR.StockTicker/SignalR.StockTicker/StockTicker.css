@@ -39,7 +39,7 @@
 
     #stockTicker li {
         display: inline-block;
-        margin-right: 8px;   
+        margin-right: 8px;
     }
 
     /*<li data-symbol="{Symbol}"><span class="symbol">{Symbol}</span><span class="price">{Price}</span><span class="change">{PercentChange}</span></li>*/

@@ -7,11 +7,11 @@ namespace Microsoft.AspNet.SignalR.StockTicker
         private decimal _price;
 
         public string Symbol { get; set; }
-        
+
         public decimal DayOpen { get; private set; }
-        
+
         public decimal DayLow { get; private set; }
-        
+
         public decimal DayHigh { get; private set; }
 
         public decimal LastChange { get; private set; }
@@ -44,10 +44,10 @@ namespace Microsoft.AspNet.SignalR.StockTicker
                 {
                     return;
                 }
-                
+
                 LastChange = value - _price;
                 _price = value;
-                
+
                 if (DayOpen == 0)
                 {
                     DayOpen = _price;

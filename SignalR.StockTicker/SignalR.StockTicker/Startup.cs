@@ -1,4 +1,5 @@
 ﻿using Microsoft.Owin;
+
 using Owin;
 
 [assembly: OwinStartup(typeof(SignalR.StockTicker.Startup), "Configuration")]
